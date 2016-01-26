@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Миттєвий переклад</string>
+    <string name="app_checked_switch">Увімкнено</string>
+    <string name="app_unchecked_switch">Вимкнено</string>
+    <string name="action_settings">Налаштування</string>
+</resources>
