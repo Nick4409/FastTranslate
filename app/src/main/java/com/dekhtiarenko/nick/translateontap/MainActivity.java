@@ -2,6 +2,7 @@ package com.dekhtiarenko.nick.translateontap;
 
 
 import android.content.ClipboardManager;
+import android.content.ClipboardManager.OnPrimaryClipChangedListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -24,6 +25,9 @@ public class MainActivity extends AppCompatActivity {
     Switch mProgramStateSwitch;
     ClipboardManager mClipboardManager;
     String mTranslation="Нічого не відбулося....";
+
+    OnPrimaryClipChangedListener mClipboardListener =null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,47 +41,16 @@ public class MainActivity extends AppCompatActivity {
 
         Translate.setClientId("translateontap");
         Translate.setClientSecret("1Ywd2fxYWLMIqAVUnjmVZTS25DWWeCrxeFsAEdF9idQ=");
-        if(mProgramStateSwitch.isChecked())
+        OpenDictionaryAPI opa =new OpenDictionaryAPI(getApplicationContext());
+
+        if(mProgramStateSwitch.isChecked()) {
             mProgramStateTextView.setText(R.string.app_checked_switch);
-        else
+            mClipboardManager.addPrimaryClipChangedListener(mClipboardListener);
+        }
+        else {
             mProgramStateTextView.setText(R.string.app_unchecked_switch);
+        }
 
-        mClipboardManager.addPrimaryClipChangedListener(new ClipboardManager.OnPrimaryClipChangedListener() {
-            @Override
-            public void onPrimaryClipChanged() {
-                if(mProgramStateSwitch.isChecked()) {
-                    class Helper extends AsyncTask<Void, Void, Void> {
-                        String toTranslate = mClipboardManager.getText().toString();
-                        String translatedText = "";
-                        @Override
-                        protected Void doInBackground(Void... params) {
-                            // TODO Auto-generated method stub
-                            try {
-                               translatedText = getTranslation(toTranslate);
-                            } catch (Exception e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                                translatedText = e.toString();
-                            }
-
-                            return null;
-                        }
-
-                        @Override
-                        protected void onPostExecute(Void result) {
-                            // TODO Auto-generated method stub
-                            Toast.makeText(getApplicationContext(), translatedText , Toast.LENGTH_LONG).show();
-                            super.onPostExecute(result);
-                        }
-
-                    }
-
-                    new Helper().execute();
-//                    String toTranslate = mClipboardManager.getText().toString();
-//                    Toast.makeText(getApplicationContext(), getTranslation(toTranslate) , Toast.LENGTH_LONG).show();
-                }
-            }
-        });
     }
 
     @Override
@@ -111,11 +84,55 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickStartProgramSwitch(View view) {
-        if (mProgramStateSwitch.isChecked())
+        if (mProgramStateSwitch.isChecked()) {
             mProgramStateTextView.setText(R.string.app_checked_switch);
-        else
+            mClipboardListener=getClipboardListener();
+            mClipboardManager.addPrimaryClipChangedListener(mClipboardListener);
+        }
+        else {
             mProgramStateTextView.setText(R.string.app_unchecked_switch);
+            mClipboardManager.removePrimaryClipChangedListener(mClipboardListener);
+            mClipboardListener=null;
+        }
     }
+
+    public OnPrimaryClipChangedListener getClipboardListener(){
+        return new OnPrimaryClipChangedListener() {
+            @Override
+            public void onPrimaryClipChanged() {
+                new Helper().execute();
+            }
+        };
+    }
+
+
+    private class Helper extends AsyncTask<Void, Void, Void> {
+        String toTranslate = mClipboardManager.getText().toString();
+        String translatedText = "";
+        @Override
+        protected Void doInBackground(Void... params) {
+            // TODO Auto-generated method stub
+            try {
+                translatedText = getTranslation(toTranslate);
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                translatedText = e.toString();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            // TODO Auto-generated method stub
+            Toast.makeText(getApplicationContext(), translatedText, Toast.LENGTH_LONG).show();
+            super.onPostExecute(result);
+        }
+
+    }
+
+
 
 }
 
