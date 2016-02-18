@@ -1,6 +1,8 @@
 <resources>
-    <string name="app_name">Миттєвий переклад</string>
+    <string name="app_name">Швидкий Переклад</string>
     <string name="app_checked_switch">Увімкнено</string>
     <string name="app_unchecked_switch">Вимкнено</string>
     <string name="action_settings">Налаштування</string>
+    <string name="action_clear_history">Очистити історію</string>
+    <string name="action_info">Інформація</string>
 </resources>
